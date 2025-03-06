@@ -44,6 +44,8 @@ if not args.skip_matching:
         exit(exit_code)
 
     ## Feature matching
+    ## exhaustive_matcher:穷举法
+    ## sequential_matcher：顺序法
     feat_matching_cmd = colmap_command + " exhaustive_matcher \
         --database_path " + args.source_path + "/distorted/database.db \
         --SiftMatching.use_gpu " + str(use_gpu)
@@ -67,11 +69,19 @@ if not args.skip_matching:
 
 ### Image undistortion
 ## We need to undistort our images into ideal pinhole intrinsics.
+# img_undist_cmd = (colmap_command + " image_undistorter \
+#     --image_path " + args.source_path + "/input \
+#     --input_path " + args.source_path + "/distorted/sparse/0 \
+#     --output_path " + args.source_path + "\
+#     --output_type COLMAP")
+sparse_sub_dirs = os.listdir(args.source_path + "/distorted/sparse")
+final_sparse_sub_dir = str(max([int(i) for i in sparse_sub_dirs]))
+
 img_undist_cmd = (colmap_command + " image_undistorter \
-    --image_path " + args.source_path + "/input \
-    --input_path " + args.source_path + "/distorted/sparse/0 \
-    --output_path " + args.source_path + "\
-    --output_type COLMAP")
+        --image_path " + args.source_path + "/input \
+        --input_path " + args.source_path + "/distorted/sparse/" + final_sparse_sub_dir + " \
+        --output_path " + args.source_path + " \
+        --output_type COLMAP")
 exit_code = os.system(img_undist_cmd)
 if exit_code != 0:
     logging.error(f"Mapper failed with code {exit_code}. Exiting.")
