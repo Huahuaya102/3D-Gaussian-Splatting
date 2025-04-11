@@ -11,8 +11,9 @@
 
 import os
 import torch
+import math
 from random import randint
-from utils.loss_utils import l1_loss, ssim
+from utils.loss_utils import l1_loss, l2_loss, smooth_l1_loss, ssim
 from gaussian_renderer import render, network_gui
 import sys
 from scene import Scene, GaussianModel
@@ -39,6 +40,42 @@ try:
     SPARSE_ADAM_AVAILABLE = True
 except:
     SPARSE_ADAM_AVAILABLE = False
+
+
+# 定义颜色和不透明度的平滑正则项
+def color_opacity_smoothness_regularization(gaussians):
+    smoothness_loss = 0.0
+    # 提取颜色和不透明度
+    # features_dc = gaussians.get_features_dc
+    # features_rest = gaussians.get_features_rest
+    opacities = gaussians.get_opacity
+
+    # # 颜色直流分量-平滑正则化
+    # if len(features_dc.shape) > 1:
+    #     color_diff = torch.diff(features_dc, dim=0)
+    #     smoothness_loss += torch.sum(color_diff ** 2)
+    # else:
+    #     color_diff = torch.diff(features_dc)
+    #     smoothness_loss += torch.sum(color_diff ** 2)
+
+    #  # 颜色剩余分量-平滑正则化
+    # if len(features_rest.shape) > 1:
+    #     color_diff = torch.diff(features_rest, dim=0)
+    #     smoothness_loss += torch.sum(color_diff ** 2)
+    # else:
+    #     color_diff = torch.diff(features_rest)
+    #     smoothness_loss += torch.sum(color_diff ** 2)
+
+    # 不透明度平滑正则化
+    if len(opacities.shape) > 1:
+        opacity_diff = torch.diff(opacities, dim=0)
+        smoothness_loss += torch.sum(opacity_diff ** 2)
+    else:
+        opacity_diff = torch.diff(opacities)
+        smoothness_loss += torch.sum(opacity_diff ** 2)
+        
+    return smoothness_loss
+
 
 def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from):
 
@@ -118,11 +155,16 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         # Loss
         gt_image = viewpoint_cam.original_image.cuda()
         Ll1 = l1_loss(image, gt_image)
+        # Ll2 = l2_loss(image, gt_image)
+        # Lsl1 = smooth_l1_loss(image, gt_image)
         if FUSED_SSIM_AVAILABLE:
             ssim_value = fused_ssim(image.unsqueeze(0), gt_image.unsqueeze(0))
         else:
             ssim_value = ssim(image, gt_image)
 
+        # 添加平滑正则化项
+        # lamdba_color_opacity_smooth = 0.0001 # 颜色和不透明度平滑正则化系数
+        # color_opacity_smooth_reg = color_opacity_smoothness_regularization(gaussians)
         loss = (1.0 - opt.lambda_dssim) * Ll1 + opt.lambda_dssim * (1.0 - ssim_value)
 
         # Depth regularization
@@ -165,6 +207,47 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 # Keep track of max radii in image-space for pruning
                 gaussians.max_radii2D[visibility_filter] = torch.max(gaussians.max_radii2D[visibility_filter], radii[visibility_filter])
                 gaussians.add_densification_stats(viewspace_point_tensor, visibility_filter)
+
+                # # 删除固定间隔判断，改为动态条件
+                # if iteration > opt.densify_from_iter:
+                #     # 计算梯度统计量
+                #     grad_norm = torch.norm(gaussians._xyz.grad, dim=1)
+                #     grad_mean = grad_norm.mean()
+                #     grad_std = grad_norm.std()
+
+                #     # 指数衰减系数
+                #     if iteration < opt.iterations * 0.2:
+                #         decay_rate = 0.2 # 训练初期使用较大的衰减率
+                #     elif iteration < opt.iterations * 0.8:
+                #         decay_rate = 0.1 # 训练中期使用较小的衰减率
+                #     else:
+                #         decay_rate = 0.05 # 训练后期使用更小的衰减率
+                #     dynamic_factor = math.exp(-decay_rate * iteration / opt.iterations)
+                #     dynamic_grad_threshold = opt.densify_grad_threshold * dynamic_factor
+
+                #     # 在训练后期适当提高显著梯度区域的比例要求
+                #     if iteration > opt.iterations * 0.8:
+                #         ratio = 0.2
+                #     else:
+                #         ratio = 0.1
+                    
+                #     # 自适应条件 (满足以下任一条件时触发)
+                #     condition1 = grad_mean > (opt.densify_grad_threshold * dynamic_grad_threshold)  # 动态衰减阈值
+                #     condition2 = (grad_norm > grad_mean + grad_std).sum() > len(grad_norm) * ratio  # 存在显著梯度区域
+                #     condition3 = iteration % 100 == 0 and len(gaussians.get_xyz) < 50000  # 防保底机制
+
+                #     if condition1 or condition2 or condition3:
+                #         # 动态尺寸阈值（随迭代逐步收紧）
+                #         size_threshold = max(20 - iteration // 1000,
+                #                              10) if iteration > opt.opacity_reset_interval else None
+                #         gaussians.densify_and_prune(
+                #             max(opt.densify_grad_threshold, 0.0001 * (1 - iteration / opt.iterations)),  # 动态梯度阈值
+                #             0.005,
+                #             scene.cameras_extent,
+                #             size_threshold,
+                #             radii
+                #         )
+
 
                 if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:
                     size_threshold = 20 if iteration > opt.opacity_reset_interval else None
@@ -258,11 +341,11 @@ if __name__ == "__main__":
     op = OptimizationParams(parser)
     pp = PipelineParams(parser)
     parser.add_argument('--ip', type=str, default="127.0.0.1")
-    parser.add_argument('--port', type=int, default=6009)
+    parser.add_argument('--port', type=int, default=6008)
     parser.add_argument('--debug_from', type=int, default=-1)
     parser.add_argument('--detect_anomaly', action='store_true', default=False)
-    parser.add_argument("--test_iterations", nargs="+", type=int, default=[7_000, 30_000])
-    parser.add_argument("--save_iterations", nargs="+", type=int, default=[7_000, 30_000])
+    parser.add_argument("--test_iterations", nargs="+", type=int, default=[7_000, 30_000, 40_000, 50_000, 60_000])
+    parser.add_argument("--save_iterations", nargs="+", type=int, default=[7_000, 30_000, 40_000, 50_000, 60_000])
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument('--disable_viewer', action='store_true', default=False)
     parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[])
