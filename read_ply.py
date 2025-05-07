@@ -19,10 +19,15 @@ def print_ply_attributes(ply_file_path):
             # 打印元素的数量
             print(f"  元素数量: {len(element.data)}")
 
+            # 检查是否为 vertex 元素（点云数据通常存储在这里）
+            if element.name =='vertex':
+                point_cloud_count = len(element.data)
+                print(f"\n点云数量: {point_cloud_count}")
+
     except Exception as e:
         print(f"读取文件时出现错误: {e}")
 
 # 使用示例
-ply_file_path = '/home/ubuntu/yjh/Scaffold-GS/outputs/test/baseline/2025-04-08_16:00:33/point_cloud/iteration_30000/point_cloud.ply'
+ply_file_path = '/home/ubuntu/3d_cv_data_critical/3dgs_server_output/20250424091521_output/point_cloud/iteration_60000/point_cloud.ply'
 # ply_file_path = '/home/ubuntu/yjh/gaussian-splatting/data/office001/sparse/0/points3D.ply'
 print_ply_attributes(ply_file_path)

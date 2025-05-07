@@ -155,9 +155,9 @@ if __name__ == '__main__':
     cx = camera_param[0][6]
     cy = camera_param[0][7]
 
-    num_images = int(len(images) / 3)
-    init_id = 1
-    step = 3
+    num_images = int(len(images) / 2)
+    init_id = 20
+    step = 1
     images_param = []
     flag = 0
     for _, img in images.items():
@@ -165,7 +165,7 @@ if __name__ == '__main__':
         if img.id == init_id and img.id < num_images:
             images_param.append(image_header)
             flag += 1
-            if flag >= 10:
+            if flag >= 100:
                 break
         else:
             continue

@@ -1,0 +1,161 @@
+[
+    {
+        "task_id": "20250422094234",
+        "status": "completed",
+        "pid": 4147159,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422094234_script_log.txt",
+        "model_path": "http://192.168.100.117:6080/?url=20250422094234_output.splat",
+        "timestamp": "2025-04-22 09:43:20"
+    },
+    {
+        "task_id": "20250422094909",
+        "status": "completed",
+        "pid": 4171379,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422094909_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 09:49:55"
+    },
+    {
+        "task_id": "20250422095358",
+        "status": "completed",
+        "pid": 4187360,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422095358_script_log.txt",
+        "model_path": "http://192.168.100.117:6080/?url=20250422095358_output.splat",
+        "timestamp": "2025-04-22 09:54:39"
+    },
+    {
+        "task_id": "20250422095458",
+        "status": "completed",
+        "pid": 4191297,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422095458_script_log.txt",
+        "model_path": "http://192.168.100.117:6080/?url=20250422095458_output.splat",
+        "timestamp": "2025-04-22 09:55:42"
+    },
+    {
+        "task_id": "20250422103538",
+        "status": "completed",
+        "pid": 215386,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422103538_script_log.txt",
+        "model_path": "http://192.168.100.117:6080/?url=20250422103538_output.splat",
+        "timestamp": "2025-04-22 10:36:19"
+    },
+    {
+        "task_id": "20250422110045",
+        "status": "completed",
+        "pid": 319909,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422110045_script_log.txt",
+        "model_path": "http://192.168.100.117:6080/?url=20250422110045_output.splat",
+        "timestamp": "2025-04-22 12:03:59"
+    },
+    {
+        "task_id": "20250422130706",
+        "status": "completed",
+        "pid": 790502,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422130706_script_log.txt",
+        "model_path": "http://192.168.100.117:6080/?url=20250422130706_output.splat",
+        "timestamp": "2025-04-22 14:17:01"
+    },
+    {
+        "task_id": "20250422181440",
+        "status": "completed",
+        "pid": 2658925,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422181440_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 18:14:46"
+    },
+    {
+        "task_id": "20250422182154",
+        "status": "completed",
+        "pid": 2717053,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422182154_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 18:22:01"
+    },
+    {
+        "task_id": "20250422182531",
+        "status": "completed",
+        "pid": 2745981,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422182531_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 18:25:38"
+    },
+    {
+        "task_id": "20250422182648",
+        "status": "completed",
+        "pid": 2756385,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422182648_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 18:26:55"
+    },
+    {
+        "task_id": "20250422183332",
+        "status": "completed",
+        "pid": 2827452,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422183332_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 18:33:39"
+    },
+    {
+        "task_id": "20250422185859",
+        "status": "completed",
+        "pid": 3037752,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422185859_script_log.txt",
+        "model_path": "http://192.168.100.117:6080/?url=20250422185859_output.splat",
+        "timestamp": "2025-04-22 19:00:58",
+        "has_error": false
+    },
+    {
+        "task_id": "20250422191345",
+        "status": "completed",
+        "pid": 3157033,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422191345_script_log.txt",
+        "model_path": "http://192.168.100.117:6080/?url=20250422191345_output.splat",
+        "timestamp": "2025-04-22 19:15:37",
+        "has_error": false
+    },
+    {
+        "task_id": "20250422191734",
+        "status": "failed",
+        "pid": 3187801,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422191734_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 19:17:40",
+        "has_error": true
+    },
+    {
+        "task_id": "20250422192540",
+        "status": "failed",
+        "pid": 3235639,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422192540_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 19:25:47",
+        "has_error": true
+    },
+    {
+        "task_id": "20250422193407",
+        "status": "failed",
+        "pid": 3300661,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422193407_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 19:34:12",
+        "has_error": true
+    },
+    {
+        "task_id": "20250422193425",
+        "status": "failed",
+        "pid": 3301672,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422193425_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 19:34:30",
+        "has_error": true
+    },
+    {
+        "task_id": "20250422193554",
+        "status": "failed",
+        "pid": 3304956,
+        "log_file": "/home/ubuntu/yjh/gaussian-splatting/20250422193554_script_log.txt",
+        "model_path": "",
+        "timestamp": "2025-04-22 19:36:00",
+        "has_error": true
+    }
+]

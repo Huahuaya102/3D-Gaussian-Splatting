@@ -77,6 +77,7 @@ def color_opacity_smoothness_regularization(gaussians):
         
     return smoothness_loss
 
+# 自动获取空闲端口
 def find_available_gpu():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         s.bind(('localhost', 0))
@@ -214,46 +215,29 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 gaussians.max_radii2D[visibility_filter] = torch.max(gaussians.max_radii2D[visibility_filter], radii[visibility_filter])
                 gaussians.add_densification_stats(viewspace_point_tensor, visibility_filter)
 
-            #    # 删除固定间隔判断，改为动态条件
-            #     if iteration > opt.densify_from_iter:
-            #             # 计算梯度统计量
-            #             grad_norm = torch.norm(gaussians._xyz.grad, dim=1)
-            #             grad_mean = grad_norm.mean()
-            #             grad_std = grad_norm.std()
+                # # 删除固定间隔判断，改为动态条件
+                # if iteration > opt.densify_from_iter:
+                #     # 计算梯度统计量
+                #     grad_norm = torch.norm(gaussians._xyz.grad, dim=1)
+                #     grad_mean = grad_norm.mean()
+                #     grad_std = grad_norm.std()
 
-            #             # 动态衰减因子，使用更平滑的衰减函数
-            #             decay_rate = 0.01
-            #             dynamic_factor = 1 / (1 + math.exp(decay_rate * (iteration - opt.iterations / 2)))
+                #     # 自适应条件 (满足以下任一条件时触发)
+                #     condition1 = grad_mean > (densify_grad_threshold * (1 - iteration / opt.iterations))  # 动态衰减阈值
+                #     condition2 = (grad_norm > grad_mean + grad_std).sum() > len(grad_norm) * 0.1  # 存在显著梯度区域
+                #     condition3 = iteration % 100 == 0 and len(gaussians.get_xyz) < 50000  # 防保底机制
 
-            #             # 动态梯度阈值
-            #             dynamic_grad_threshold = opt.densify_grad_threshold * dynamic_factor
-
-            #             # 根据迭代阶段调整显著梯度区域的比例要求
-            #             if iteration > opt.iterations * 0.9:
-            #                 ratio = 0.3
-            #             elif iteration > opt.iterations * 0.7:
-            #                 ratio = 0.2
-            #             else:
-            #                 ratio = 0.1
-
-            #             # 自适应条件 (满足以下任一条件时触发)
-            #             condition1 = grad_mean > dynamic_grad_threshold  # 动态衰减阈值
-            #             condition2 = (grad_norm > grad_mean + 2 * grad_std).sum() > len(grad_norm) * ratio  # 存在显著梯度区域
-            #             condition3 = iteration % 100 == 0 and len(gaussians.get_xyz()) < 50000  # 防保底机制
-
-            #             if condition1 or condition2 or condition3:
-            #                 # 动态尺寸阈值（随迭代逐步收紧）
-            #                 size_threshold = max(30 - iteration // 500,
-            #                                     15) if iteration > opt.opacity_reset_interval else None
-            #                 # 优化密度化和剪枝操作的梯度阈值
-            #                 grad_threshold = max(opt.densify_grad_threshold * dynamic_factor, 0.00005 * (1 - iteration / opt.iterations))
-            #                 gaussians.densify_and_prune(
-            #                     grad_threshold,
-            #                     0.005,
-            #                     scene.cameras_extent,
-            #                     size_threshold,
-            #                     radii
-            #                 )
+                #     if condition1 or condition2 or condition3:
+                #         # 动态尺寸阈值（随迭代逐步收紧）
+                #         size_threshold = max(20 - iteration // 1000,
+                #                              10) if iteration > opt.opacity_reset_interval else None
+                #         gaussians.densify_and_prune(
+                #             max(opt.densify_grad_threshold, 0.0001 * (1 - iteration / opt.iterations)),  # 动态梯度阈值
+                #             0.005,
+                #             scene.cameras_extent,
+                #             size_threshold,
+                #             radii
+                #         )
 
                 if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:
                     size_threshold = 20 if iteration > opt.opacity_reset_interval else None
@@ -350,8 +334,8 @@ if __name__ == "__main__":
     parser.add_argument('--port', type=int, default=None, help="Port to use for GUI server")
     parser.add_argument('--debug_from', type=int, default=-1)
     parser.add_argument('--detect_anomaly', action='store_true', default=False)
-    parser.add_argument("--test_iterations", nargs="+", type=int, default=[7_000, 30_000, 40_000, 50_000, 60_000])
-    parser.add_argument("--save_iterations", nargs="+", type=int, default=[7_000, 30_000, 40_000, 50_000, 60_000])
+    parser.add_argument("--test_iterations", nargs="+", type=int, default=[7_000, 10_000, 20_000, 30_000, 40_000, 50_000, 60_000])
+    parser.add_argument("--save_iterations", nargs="+", type=int, default=[7_000, 10_000, 20_000, 30_000, 40_000, 50_000, 60_000])
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument('--disable_viewer', action='store_true', default=False)
     parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[])

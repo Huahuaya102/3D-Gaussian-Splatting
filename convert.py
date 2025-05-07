@@ -31,13 +31,19 @@ use_gpu = 1 if not args.no_gpu else 0
 if not args.skip_matching:
     os.makedirs(args.source_path + "/distorted/sparse", exist_ok=True)
 
-    ## Feature extraction
+    ## 特征提取
+    # --SiftExtraction.max_image_size 1600 \          # 降低最大图像尺寸以适应室内场景
+    # --SiftExtraction.edge_threshold 5 \            # 降低边缘阈值以提取更多特征
+    # --SiftExtraction.peak_threshold 0.005 \        # 降低峰值阈值以提取更多特征
+    # --SiftExtraction.max_num_features 12000 \      # 增加最大特征点数
+    # --SiftExtraction.first_octave -1 \             # 自动选择第一层octave
+    # --SiftExtraction.num_octaves 6"                # 增加octave层数以捕捉更多细节
     feat_extracton_cmd = colmap_command + " feature_extractor "\
         "--database_path " + args.source_path + "/distorted/database.db \
         --image_path " + args.source_path + "/input \
         --ImageReader.single_camera 1 \
         --ImageReader.camera_model " + args.camera + " \
-        --SiftExtraction.use_gpu " + str(use_gpu)
+        --SiftExtraction.use_gpu " + str(use_gpu)  
     exit_code = os.system(feat_extracton_cmd)
     if exit_code != 0:
         logging.error(f"Feature extraction failed with code {exit_code}. Exiting.")
@@ -46,6 +52,14 @@ if not args.skip_matching:
     ## Feature matching
     ## exhaustive_matcher:穷举法
     ## sequential_matcher：顺序法
+    ## --SiftMatching.guided_matching true 使用引导匹配提高匹配准确性
+    ## --SiftMatching.max_ratio 0.8 降低匹配阈值
+    #  --SiftMatching.max_num_matches 40000 \        # 增加最大匹配对数
+    #  --SiftMatching.min_num_inliers 20 \           # 提高最小内点数要求
+    #  --SiftMatching.max_error 3.0 \                # 降低最大重投影误差
+    #  --SiftMatching.confidence 0.9999 \            # 提高置信度
+    #  --SiftMatching.max_num_trials 20000 \         # 增加最大RANSAC迭代次数
+    #  --SiftMatching.min_inlier_ratio 0.3           # 提高最小内点比例
     feat_matching_cmd = colmap_command + " exhaustive_matcher \
         --database_path " + args.source_path + "/distorted/database.db \
         --SiftMatching.use_gpu " + str(use_gpu)

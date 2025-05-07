@@ -43,6 +43,15 @@ def l1_loss(network_output, gt):
 def l2_loss(network_output, gt):
     return ((network_output - gt) ** 2).mean()
 
+def smooth_l1_loss(network_output, gt):
+    errors = torch.abs(network_output - gt)
+    condition = errors < 1
+    small_errors = 0.5 * errors[condition] ** 2
+    large_errors = errors[~condition] - 0.5
+    total_loss = torch.sum(small_errors) + torch.sum(large_errors)
+    average_loss = total_loss / network_output.numel()
+    return average_loss
+
 def gaussian(window_size, sigma):
     gauss = torch.Tensor([exp(-(x - window_size // 2) ** 2 / float(2 * sigma ** 2)) for x in range(window_size)])
     return gauss / gauss.sum()
